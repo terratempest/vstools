@@ -32,9 +32,9 @@ VSTOOLS.Viewer = function () {
 
 		setTimeout( function () {
 
-			camera.aspect =  ( window.innerWidth - 360 ) / window.innerHeight;
+			camera.aspect =  ( window.innerWidth - $('#leftSidebar').width() - $('#sidebar').width() ) / window.innerHeight;
 			camera.updateProjectionMatrix();
-			renderer.setSize( ( window.innerWidth - 360 ), window.innerHeight );
+			renderer.setSize( ( window.innerWidth - $('#leftSidebar').width() - $('#sidebar').width() ), window.innerHeight );
 
 		}, 1 );
 
@@ -57,6 +57,7 @@ VSTOOLS.Viewer = function () {
 	// ui
 
 	var $sidebar = $( '#sidebar' );
+	var $leftSidebar = $( '#leftSidebar' );
 
 	$sidebar.on( 'click', 'h2', function () {
 
@@ -64,15 +65,25 @@ VSTOOLS.Viewer = function () {
 
 	} );
 
+	$leftSidebar.on( 'click', 'h2', function() {
+
+		$( this ).toggleClass( 'collapsed' );
+
+	});
+
 	var $file1 = $( '#file1' );
 	var $file2 = $( '#file2' );
+	var $fileAltDefault = $( '#fileAltDefault' );
 	var $load = $( '#load' );
+	var $files = $( '#files' );
 	var $skeleton = $( '#skeleton' );
 	var $textures = $( '#textures' );
 	var $animation = $( '#animation' );
 	var $animationCount = $( '#animationCount' );
 
-	$sidebar.on( 'click', '#load', load );
+	$sidebar.on( 'click', '#load', function(){
+		load( $file1[ 0 ].files[ 0 ], $file2[ 0 ].files[ 0 ] );
+	});
 
 	$sidebar.on( 'click', '#next', nextAnim );
 	$sidebar.on( 'click', '#prev', prevAnim );
@@ -81,15 +92,164 @@ VSTOOLS.Viewer = function () {
 
 	$sidebar.on( 'click', '#exportOBJ', exportOBJ );
 	$sidebar.on( 'click', '#exportJSON', exportJSON );
+	
+	$leftSidebar.on( 'change', '#files', setupFileList);
+	
+	var currentlySelected = "";
+	var currentlySelectedFile = "";
+	var currentlySelectedAlt = "";
+	var currentlySelectedAltFile = "";
+	var selectionState = 'primaryFile';
+	var $loadLabel = $('#loadFileInformation');
+
+	$leftSidebar.on( 'click', '.fileEntry', function(){ // Toggle selected element and load file/files
+		
+		if(selectionState == 'secondaryFile' && $(this)[0].children[0].innerHTML.split('.')[1].toLowerCase() != 'seq') {
+			selectionState = 'primaryFile';
+			if(currentlySelectedAlt != ""){
+				currentlySelectedAlt.toggleClass('selectedAlt');
+			}
+			currentlySelectedAlt = "";
+			currentlySelectedAltFile = "";
+		}
+		
+		if(selectionState == 'primaryFile' && $(this)[0].children[0].innerHTML.split('.')[1].toLowerCase() != 'seq'){
+
+			if(currentlySelected != ""){
+				currentlySelected.toggleClass('selected');
+			}
+
+			currentlySelected = $(this);
+			currentlySelectedFile = allFiles[$(this)[0].children[0].innerHTML];
+			$loadLabel[0].innerHTML = $(this)[0].children[0].innerHTML;
+			$(this).toggleClass('selected');
+
+			if(currentlySelectedFile.name.split('.')[1].toLowerCase() == 'shp'){
+				selectionState = 'secondaryFile';
+				$loadLabel[0].innerHTML = "Also Select Animation File (SEQ)";
+			}
+
+		} else if(selectionState == 'secondaryFile'){
+			
+			if(currentlySelectedAlt != ""){
+				currentlySelectedAlt.toggleClass('selectedAlt');
+			}
+
+			currentlySelectedAlt = $(this);
+			currentlySelectedAltFile = allFiles[$(this)[0].children[0].innerHTML];
+			$loadLabel[0].innerHTML = "( " + currentlySelected[0].children[0].innerHTML + ", " + currentlySelectedAlt[0].children[0].innerHTML + " )";
+			$(this).toggleClass('selectedAlt');
+
+		} else {
+			$loadLabel[0].innerHTML = 'Cannot load SEQ by itself, select SHP first';
+		}
+		
+
+		// After selecting load the file
+		if(currentlySelectedFile != ""){
+			
+			if(typeof MPDReference[currentlySelectedFile.name] !== 'undefined'){
+
+				load(allFiles[MPDReference[currentlySelectedFile.name]], currentlySelectedFile);
+
+			} else if( selectionState == 'secondaryFile' ) {
+				
+				if(currentlySelectedAltFile == ""){
+
+					load( currentlySelectedFile, $fileAltDefault[ 0 ].files[ 0 ] );
+
+
+				} else {
+						
+					load( currentlySelectedFile, currentlySelectedAltFile);
+					
+				}
+			} else {
+
+				load( currentlySelectedFile, $fileAltDefault[ 0 ].files[ 0 ] );					
+				
+			}
+		}
+
+	});
+
+	// Grabbing Files
+	
+	var supportedFiletypes = {'shp': 'Characters', 'wep': 'Weapons', 'zud': 'Combined Files', 'znd': 'Zone Data', 'arm': 'Minimap', 'seq': 'Animations', 'mpd': 'Map'};
+	
+	var allFiles = {};
+	
+	function setupFileList() { // Cleanup on isle 10
+		
+		fileList = $files[0].files; // List of files selected by user
+	
+		$fileList = $( '#fileList' ); // Element in sidebar that will contain list of files
+		
+		$fileList[0].innerHTML = "";
+		
+		//console.log(loaders);
+		
+		sections = {element: $fileList[0]};
+
+		for(var i = 0; i < fileList.length; i++){ // Iterate through files
+			
+			// get folders>filename>extension
+			relPath = fileList[i].webkitRelativePath.split(new RegExp('["/","."]', 'g'));
+			
+			ext = relPath[relPath.length-1].toLowerCase();
+			
+			if(typeof supportedFiletypes[ext] !== 'undefined'){ // If a supported filetype
+				
+				focus = sections;
+
+				for(var j = 0; j < relPath.length-2; j++){ // Iterate through folder structure
+					if(typeof focus['path_name_' + relPath[j]] === 'undefined'){ // If new folder
+						var $folder = document.createElement("div");
+						$folder.className = 'directory';
+						
+						var $title = document.createElement("h2");						
+						$title.innerHTML = relPath[j];
+						$title.className = 'collapsed';
+
+						$folder.appendChild($title);
+												
+						focus['element'].appendChild($folder);						
+						focus['path_name_' + relPath[j]] = {element: $folder};
+					}
+					focus = focus['path_name_' + relPath[j]];
+				}				
+				
+				$fileEntry = document.createElement("div");
+				$fileEntry.className = 'fileEntry';
+				$fileText = document.createElement("p");
+				$fileText.innerHTML = fileList[i].name;
+				$fileText.className = 'fileName';
+
+				$fileDescription = document.createElement("p");	
+				$fileDescription.className = 'description';			
+				$fileDescription.innerHTML = supportedFiletypes[ext];
+				
+				$fileEntry.appendChild($fileText);
+				$fileEntry.appendChild($fileDescription);
+
+				allFiles[fileList[i].name] = fileList[i];
+
+				focus['element'].appendChild($fileEntry);
+			};
+
+		}
+		//console.log(sections);
+
+	}
 
 	// loading
 
 	var loaders = {};
 
-	function load() {
+	function load( f1, f2 ) {
 
-		var f1 = $file1[ 0 ].files[ 0 ];
-		var f2 = $file2[ 0 ].files[ 0 ];
+		//var f1 = $file1[ 0 ].files[ 0 ];
+		//var f2 = $file2[ 0 ].files[ 0 ];
 
 		var reader1 = new FileReader();
 		reader1.onload = function () {
