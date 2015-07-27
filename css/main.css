@@ -10,114 +10,6 @@ body {
 	overflow: hidden;
 }
 
-#leftSidebar {
-	position: absolute;
-	top: 0;
-	left: 0;
-	bottom: 0;
-	width: 300px;
-	
-	color: #111;
-	background: #ccc;
-
-	overflow-y: auto;
-}
-
-	#leftSidebar .panel {
-		padding: 0 10px;
-		border-bottom: 1px solid #aaa;
-	}
-
-	#leftSidebar .panel.fileList{
-		height: 550px;
-		overflow-y: auto;
-
-	}
-		#leftSidebar .panel h2 {
-
-			font-size: 12px;
-			font-weight: normal;
-			text-transform: uppercase;
-			color: #666;
-
-			cursor: pointer;
-		}
-
-		#leftSidebar .panel h2:before {
-			content: '- ';
-			display: inline-block;
-			width: 12px;
-		}
-
-		#leftSidebar .panel h2.collapsed:before {
-			content: '+ ';
-		}
-
-			#leftSidebar .panel h2.collapsed ~ p,
-			#leftSidebar .panel h2.collapsed ~ div {
-				display: none;
-			}
-
-#fileList {
-	color: #ccc;
-	background: #555;
-	padding: 10px 5px;
-	border: 3px solid #aaa;
-	margin-bottom: 10px;
-	cursor: pointer;
-
-}
-	
-	#fileList p {
-		margin: 0;
-		display: table-cell;
-		width: 100%;
-		
-	}
-	
-	#fileList p.description{
-		min-width: 100px;
-		text-align: right;
-	}
-
-	#fileList .directory h2 {
-		background: #CCC;
-		color: #555;
-		padding: 5px;
-		margin: 1px 0;
-	}
-
-	#fileList .directory div {
-		padding: 0 5px;
-		margin: 0 0 0 5px;
-		display: table;
-	}
-
-	#fileList .directory.collapsed div {
-		display: none;
-	}
-
-.fileEntry{
-	padding: 0 0 0 5px;
-	margin: 0 0 0 5px;
-}
-	
-.fileEntry:nth-child(odd) {
-	background: #CCC;
-	color: #555;
-}
-
-	.fileEntry.selected{
-		background: #99f;
-		color: #555;
-	}
-
-	.fileEntry.selectedAlt{
-		background: #9f9;
-		color: #555;
-	}
-
-	
 #sidebar {
 	position: absolute;
 	top: 0;
@@ -161,22 +53,13 @@ body {
 				display: none;
 			}
 
-canvas {
-	margin-left: 300px;
-}
-
-#textures img:nth-child(odd) {
+#textures img {
 	width: 150px;
 	margin: 0 10px 10px 0;
 }
 
-#textures img:nth-child(even) {
-	width: 150px;
-	margin: 0 0px 10px 0;
-}
-
 #image {
-	margin-right: 350px;
+	margin-right: 360px;
 }
 #imaage img:only-child {
 	image-rendering: -moz-crisp-edges;

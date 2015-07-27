@@ -10,53 +10,11 @@
 </head>
 <body>
 
-<div id="leftSidebar">
-	<div class="panel">
-	
-		<h2> Import </h2>
-		
-		<p>
-			<label>
-				Select folder containing game files<br>
-				<input type="file" id="files" webkitdirectory directory multiple/>
-			</label>
-		</p>
-		
-		<p>
-			<label>Info:</label>
-			<label id="loadFileInformation">No File Selected</label>
-		</p>
-		
-		<p>
-			<label>
-				Default SEQ (if no other selected)<br>
-				<input type="file" id="fileAltDefault">
-			</label>
-		</p>
-		
-		<p>
-			<label>
-				<input type="checkbox" id="skeleton"> Show skeleton
-			</label>
-		</p>
-		
-		
-	</div>
-	
-	<div class="panel fileList">
-		<h2> File List </h2>
-		<div id="fileList">
-		
-		</div>
-	</div>
-	
-</div>
-
 <div id="sidebar">
 
 	<div class="panel">
 
-		<h2>Import (old)</h2>
+		<h2>Import</h2>
 
 		<p>
 			<label>
@@ -69,6 +27,12 @@
 			<label>
 				Select SEQ or MPD<br>
 				<input type="file" id="file2">
+			</label>
+		</p>
+
+		<p>
+			<label>
+				<input type="checkbox" id="skeleton"> Show skeleton
 			</label>
 		</p>
 
@@ -108,7 +72,6 @@
 	</div>
 
 </div>
-
 
 <script src="lib/jquery-1.11.2.min.js"></script>
 <script src="lib/three.js"></script>
@@ -152,7 +115,6 @@
 <script src="src/FrameBuffer.js"></script>
 <script src="src/Text.js"></script>
 
-<script src="src/MPDReference.js"></script>
 <script src="src/Viewer.js"></script>
 
 <script>
